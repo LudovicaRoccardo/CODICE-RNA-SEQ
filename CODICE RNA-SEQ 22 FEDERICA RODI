@@ -132,7 +132,7 @@ dds <- DESeq(dds)
 
 res <- results(dds)
 
-resOrdered <- res[order(res$pvalue),]
+resOrdered <- res[order(res$pvalue),]   
 
 plotMA(res, ylim=c(-3,3))
 
@@ -172,9 +172,9 @@ select <- order(rowMeans(counts(dds,normalized=TRUE)),
 df <- as.data.frame(colData(dds)[,c("condition")])
 
 pheatmap(assay(ntd)[select,],
-         cluster_cols=FALSE, annotation_col=df$condition)
+         cluster_cols=FALSE, annotation_col=df$condition)    DOMANDA 6°
 
-plotPCA(ntd, intgroup=c("condition"))
+plotPCA(ntd, intgroup=c("condition"))                         DOMANDA 4°
 
 save.image("deseq2_analysis.RData")
 
@@ -229,11 +229,11 @@ se facendo BP (ossia dove c'è ont = "BP" , ) non escono termini arricchiti, dob
 
 
 pdf("plots_ego.pdf")
-dotplot(ego, showCategory=30)
+dotplot(ego, showCategory=10)   DOMANDA 2°
 dev.off()
 
 pdf("plots_network-ego.pdf")
-cnetplot(ego, foldChange=resdata$log2FoldChange[which(resdata$padj<0.5)])
+cnetplot(ego, foldChange=resdata$log2FoldChange[which(resdata$padj<0.5)])   DOMANDA 3°
 dev.off()
 
 3) DISGNET ANALYSIS
@@ -252,7 +252,7 @@ disease2name=gda[, c("diseaseId", "diseaseName")]
 
 disgnet = enricher(entrez_genes_sig, TERM2GENE=disease2gene, TERM2NAME=disease2name)
 
-cnetplot(disgnet, foldChange=resdata$log2FoldChange[which(resdata$padj<0.5)])
+cnetplot(disgnet, foldChange=resdata$log2FoldChange[which(resdata$padj<0.5)])    DOAMANDA 5°
 
 save.image("deseq2_analysis.RData")
 
