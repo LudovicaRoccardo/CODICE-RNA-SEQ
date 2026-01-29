@@ -29,10 +29,10 @@ Cancella quello che mi esce scritto sulla barra in alto e scrivi sulla barra in 
 6) spacchetto i file dell’esercizio con il comando: tar -xvzf data_rnaseq.tar.gz -C .  
    
     (metto il punto dopo C , perchè gli sto dicendo di spacchettare i file dove mi trovo, 
-     ossia in rawdata. Se mi trovassi in analysis, ma volevo spacchettare in rawdata 
-     allora: tar -xvzf data_rnaseq.tar.gz -C rawdata/ )
+     ossia in reads. Se mi trovassi in analysis, ma volevo spacchettare in reads 
+     allora: tar -xvzf data_rnaseq.tar.gz -C reads/ )
 
-7) ls -l  (controllo se in rawdata sono stati caricati i files fasta)
+7) ls -l  (controllo se in reads sono stati caricati i files fasta)
 
 8) digito sul terminale : salmon
 
@@ -46,7 +46,7 @@ Pathway da copiare nel loop nell’ INDEX:
 /home/gitpod/datiesame/reference_chr22/transcriptome/chr22_transcripts_index
 
 
-9)  RESTO IN RAWDATA ( perchè è li che ci sono i file che mi servono per il loop del comando successivo) 
+9)  RESTO IN READS ( perchè è li che ci sono i file che mi servono per il loop del comando successivo) 
 
 for sample in `ls *_1.fasta.gz`
 do
@@ -65,9 +65,9 @@ done
 
 NB: Se mi trovo nella cartella analysis quando lancio il loop, allora non sono nella cartella dove io ho i file che mi servono per il loop, quindi quando lancio il comando il path della prima parte del comando sarà:
 
-for sample in `ls rawdata/*_1.fasta.gz`
+for sample in `ls reads/*_1.fasta.gz`
 
-(verifico che su rawdata, per tutti i campioni, ho il file sample.quant, ci clicco e dovrei avere il file quant.sf (su logs invece mi dice che errori ho se non ho questi files come dovrei) 
+(verifico che su reads, per tutti i campioni, ho il file sample.quant, ci clicco e dovrei avere il file quant.sf (su logs invece mi dice che errori ho se non ho questi files come dovrei) 
 
 
 (ORA PASSO ALLA CONSOLE)
@@ -102,7 +102,7 @@ CAMBIA IL NUMERO DA v48 a v29 OLTRE AL 21 CHE DEVE ESSERE CAMBIATO 2 VOLTE NEL P
 
 3) READ LOCAL FILES IN
 
-files <- file.path("/home/gitpod/analysis/rawdata/", paste0(dataset$sample,".quant"), "quant.sf")
+files <- file.path("/home/gitpod/analysis/reads/", paste0(dataset$sample,".quant"), "quant.sf")
 
 names(files) <- dataset$sample
 
