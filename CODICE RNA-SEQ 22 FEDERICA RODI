@@ -238,3 +238,21 @@ dev.off()
 
 3) DISGNET ANALYSIS
 
+(ora vado sul terminale)
+
+cd home/gitpod/datiesame/reference_chr22/trascriptome/
+
+(CONSOLE)
+
+gda <- read_tsv(gzfile("/home/gitpod/datiesame/reference_chr22/transcriptome/all_gene_disease_associations.tsv.gz"))   NB: CAMBIA NUMERO CROMOSOMA SE USO IL 21
+
+disease2gene=gda[, c("diseaseId", "geneId")]
+
+disease2name=gda[, c("diseaseId", "diseaseName")]
+
+disgnet = enricher(entrez_genes_sig, TERM2GENE=disease2gene, TERM2NAME=disease2name)
+
+cnetplot(disgnet, foldChange=resdata$log2FoldChange[which(resdata$padj<0.5)])
+
+save.image("deseq2_analysis.RData")
+
