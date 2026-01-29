@@ -82,7 +82,7 @@ library(clusterProfiler)
 library(DOSE)
 library(org.Hs.eg.db)
 
-2) setwd("/home/gitpod/analysis")
+2) setwd("/home/gitpod/analysis") NB. PER TUTTO IL PROCEDIMENTO DEVO ESSERE IN ANALYSIS, QUINDI SE MI SPOSTO PER GUARADRE I FILE NELLA PARTE DESTRA DELLO SCHERMO DOVE MI FA VEDERE COSTA STO FACENDO DEVO TORNARE SEMPRE IN ANALYSIS
 
 dataset <- tibble(
   sample = c("sample_01",
@@ -95,11 +95,146 @@ dataset <- tibble(
                 rep("case", 3))
 )
 
+tx2gene <- read_tsv("/home/gitpod/datiesame/reference_chr22/transcriptome/gencode.v48.transcripts_no-vers_chr22_tx2gene.txt")
+
+NB: NEL CASO CI FOSSE LA REFERENCE 21 ALLORA PATH : tx2gene <- read_tsv("/home/gitpod/datiesame/reference_chr21/transcriptome/gencode.v29.transcripts_no-vers_chr21_tx2gene.txt")
+CAMBIA IL NUMERO DA v48 a v29 OLTRE AL 21 CHE DEVE ESSERE CAMBIATO 2 VOLTE NEL PATH
+
+3) READ LOCAL FILES IN
+
+files <- file.path("/home/gitpod/analysis/rawdata/", paste0(dataset$sample,".quant"), "quant.sf")
+
+names(files) <- dataset$sample
+
+txi <- tximport(files, type = "salmon", tx2gene = tx2gene)
+
+colnames(txi$counts)
+
+rownames(dataset) <- colnames(txi$counts)
+
+dds <- DESeqDataSetFromTximport(txi, dataset, ~condition)
+
+4) PREFILTER MIN COUNTS >10
+
+keep <- rowSums(counts(dds)) >= 10
+
+dds <- dds[keep,]
+
+(definisco il gruppo con cui fare il confronto -> gruppo di controllo)
+
+dds$condition <- relevel(dds$condition, ref = "control")
+
+5) DIFFERENTIAL EXPRESSION
+
+dds <- DESeq(dds)
+
+6) EXTRACT ANALYSIS RESULTS
+
+res <- results(dds)
+
+resOrdered <- res[order(res$pvalue),]
+
+plotMA(res, ylim=c(-3,3))
+
+plotDispEsts(dds)
+
+plotCounts(dds, gene=which.min(res$padj), intgroup="condition")
+
+7) WRITE RESULTS OF ANALYSIS
+
+resdata <- as_tibble(resOrdered)
+
+resdata$gene <- rownames(resOrdered)
+
+write_tsv(resdata, "analysis_results.tsv")
+
+save.image("deseq2_analysis.RData")
 
 
+RNA SEQ CLUSTERING
+(in teoria le library sono state già caricate, se dà errore ricaricarle)
+
+library(DESeq2)
+library(tximport)
+library(tidyverse)
+library(pheatmap) 
+library(clusterProfiler)
+library(DOSE)
+library(org.Hs.eg.db)
+
+setwd("/home/gitpod/analysis")   NB E' IMPORTANTE CHE IO MI TROVA IN ANALYSIS
+
+ntd <- normTransform(dds)
+
+select <- order(rowMeans(counts(dds,normalized=TRUE)),
+                decreasing=TRUE)[1:20]
+
+df <- as.data.frame(colData(dds)[,c("condition")])
+
+pheatmap(assay(ntd)[select,],
+         cluster_cols=FALSE, annotation_col=df$condition)
+
+plotPCA(ntd, intgroup=c("condition"))
+
+save.image("deseq2_analysis.RData")
 
 
+RNA SEQ ENRICHMENT
+(ricaricare le library se dà errore)
+
+library(DESeq2)
+library(tximport)
+library(tidyverse)
+library(pheatmap)
+library(clusterProfiler)
+library(DOSE)
+library(org.Hs.eg.db)
+
+setwd("/home/gitpod/analysis")  NB.E' IMPORTANTE CHE IO MI TROVA IN ANALYSIS
+
+1) EXTRACT SIGNIFICANT GENES
+
+universe <- AnnotationDbi::select(org.Hs.eg.db,
+                                  keys = keys(org.Hs.eg.db),
+                                  columns = c('ENTREZID','SYMBOL','ENSEMBL','ENSEMBLTRANS'),
+                                  keytype = 'ENTREZID')
+
+sig_genes <- resdata$gene[which(resdata$padj<0.05)]          NB: DA QUI VEDO I GENI SIGNIFICATIVI (POI APRO RESDATA PER COMPILARE LA 1° DOMANDA DELLA TRACCIA)
+                                                                                                   
+entrez_genes_sig <- unique(universe[which(universe$ENSEMBL %in% sig_genes),]$ENTREZID)
+
+pvalue_ens_genes <- resdata$padj[which(resdata$padj<0.05)]
+
+names(pvalue_ens_genes)<-sig_genes
+
+pvalue_entrez_genes <- resdata$padj[which(resdata$padj<0.05)]
+
+names(pvalue_entrez_genes) <- entrez_genes_sig
 
 
+2) ENRICH GO ANALYSIS        NB. SE USO IL CROMOSOMA 21 ALLORA LA PARTE DEL COMANDO DOVE C'è UNIVERSE SARA'  universe = unique(tx2gene$GENEID), ATTENZIONE ALLA VIRGOLA CHE VA MESSA ANCHE 
 
+ego <- enrichGO( gene = sig_genes,
+                 universe = unique(tx2gene$gene_id) , 
+                 OrgDb = org.Hs.eg.db,
+                 keyType = 'ENSEMBL',
+                 ont = "BP",
+                 pAdjustMethod = "BH",
+                 pvalueCutoff  = 0.05)
+
+
+copio e incollo: ego
+
+se facendo BP (ossia dove c'è ont = "BP" , ) non escono termini arricchiti, dobbiamo cambiare e mettere CC o MF!!!!!!!!!!
+
+
+pdf("plots_ego.pdf")
+dotplot(ego, showCategory=30)
+dev.off()
+
+pdf("plots_network-ego.pdf")
+cnetplot(ego, foldChange=resdata$log2FoldChange[which(resdata$padj<0.5)])
+dev.off()
+
+3) DISGNET ANALYSIS
 
