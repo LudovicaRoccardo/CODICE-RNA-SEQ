@@ -22,9 +22,9 @@ Cancella quello che mi esce scritto sulla barra in alto e scrivi sulla barra in 
 
 3) cd analysis
 
-4) mkdir -p rawdata
+4) mkdir -p reads
 
-5) cd rawdata
+5) cd reads
 
 6) spacchetto i file dell’esercizio con il comando: tar -xvzf data_rnaseq.tar.gz -C .  
    
