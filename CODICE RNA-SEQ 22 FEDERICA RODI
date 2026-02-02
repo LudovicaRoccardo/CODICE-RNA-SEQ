@@ -26,11 +26,27 @@ Cancella quello che mi esce scritto sulla barra in alto e scrivi sulla barra in 
 
 5) cd reads
 
-6) spacchetto i file dell’esercizio con il comando: tar -xvzf data_rnaseq.tar.gz -C .  
-   
-    (metto il punto dopo C , perchè gli sto dicendo di spacchettare i file dove mi trovo, 
-     ossia in reads. Se mi trovassi in analysis, ma volevo spacchettare in reads 
-     allora: tar -xvzf data_rnaseq.tar.gz -C reads/ )
+6) spacchetto i file dell’esercizio con il comando: tar -xvzf /home/gitpod/datiesame/data_rnaseq.tar.gz -C .   (SE SONO IN READS, quindi cd reads allora metto il percorso di dove mi deve
+
+                                                                                                               prendere i dati da spacchettare e metterli dove mi trovo quindi metto il
+
+                                                                                                               punto dopo C , perchè gli sto dicendo di spacchettare i file dove mi trovo)
+
+
+
+
+ 
+tar -xvzf data_rnaseq.tar.gz -C reads/                             
+                                                                     (SE SONO IN DATIESAME, quindi cd datiesame non scrivo il percorso perché sono già nella cartella in cui ho i file che      
+        
+                                                                      voglio spacchettare in reads IN QUESTO CASO NON CREO LA CARTELLA ANALYSIS, MA DIRETTAMENTE READS come sottocartella
+                                                                      di datiesame, quindi cd datiesame poi  mkdir-p reads poi tar -xvzf data_rnaseq.tar.gz -C reads/ ) ALTRIMENTI PATH NON 
+
+                                                                       FUNZIONA.
+
+
+
+
 
 7) ls -l  (controllo se in reads sono stati caricati i files fasta)
 
